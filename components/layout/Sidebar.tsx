@@ -12,12 +12,14 @@ import {
   LogOut,
   Menu,
   X,
+  Receipt,
 } from "lucide-react";
 
 const navItems = [
   { href: "/intern", label: "Overview", icon: LayoutDashboard },
   { href: "/intern/tasks", label: "My Tasks", icon: ListTodo },
   { href: "/intern/daily-log", label: "Daily Log", icon: BookOpen },
+  { href: "/intern/expenses", label: "Expenses", icon: Receipt },
   { href: "/intern/progress", label: "My Progress", icon: TrendingUp },
 ];
 

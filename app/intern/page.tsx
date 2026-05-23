@@ -12,8 +12,10 @@ import {
   AlertTriangle,
   Loader2,
   MessageSquare,
-  Download,
+  Receipt,
+  IndianRupee,
 } from "lucide-react";
+import Link from "next/link";
 import { formatIST, getGreeting } from "@/lib/utils";
 
 interface TaskData {
@@ -38,19 +40,28 @@ export default function InternOverview() {
   const [tasks, setTasks] = useState<TaskData[]>([]);
   const [records, setRecords] = useState<RecordData[]>([]);
   const [canDownloadExpenses, setCanDownloadExpenses] = useState(false);
+  const [monthlyExpenseTotal, setMonthlyExpenseTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
-      const [tasksRes, recordsRes, profileRes] = await Promise.all([
+      const now = new Date();
+      const month = now.getMonth() + 1;
+      const year = now.getFullYear();
+      const [tasksRes, recordsRes, profileRes, expensesRes] = await Promise.all([
         fetch("/api/intern/tasks"),
         fetch("/api/intern/task-records"),
         fetch("/api/intern/profile"),
+        fetch(`/api/intern/expenses?month=${month}&year=${year}`),
       ]);
       setTasks(await tasksRes.json());
       setRecords(await recordsRes.json());
       const profile = await profileRes.json();
       setCanDownloadExpenses(profile.canDownloadExpenses || false);
+      const expenses = await expensesRes.json();
+      if (Array.isArray(expenses)) {
+        setMonthlyExpenseTotal(expenses.reduce((s: number, e: { amount: number }) => s + e.amount, 0));
+      }
       setLoading(false);
     }
     load();
@@ -129,6 +140,36 @@ export default function InternOverview() {
           <StatsCard title="Needs Retry" value={needsRetry} icon={AlertTriangle} color="text-red-600" />
         </div>
       </div>
+
+      {/* Expenses summary card */}
+      <Link href="/intern/expenses" className="block">
+        <div className="bg-white rounded-lg border shadow-sm p-5 flex items-center justify-between hover:border-sdw-teal/50 transition-colors group">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-sdw-teal/10 flex items-center justify-center">
+              <Receipt size={20} className="text-sdw-teal" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-sdw-navy">This Month&apos;s Expenses</p>
+              <p className="text-xs text-gray-400">Manage and track your expenses →</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-xl font-bold text-sdw-teal flex items-center gap-0.5">
+              <IndianRupee size={16} />
+              {monthlyExpenseTotal.toLocaleString("en-IN")}
+            </p>
+            {canDownloadExpenses && (
+              <a
+                href={`/api/intern/expenses-report?month=${new Date().getMonth() + 1}&year=${new Date().getFullYear()}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-xs text-sdw-teal hover:underline"
+              >
+                Download CSV
+              </a>
+            )}
+          </div>
+        </div>
+      </Link>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Current Week */}

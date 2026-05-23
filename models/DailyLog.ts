@@ -21,6 +21,8 @@ export interface IDailyLog extends Document {
   question: string;
   confidenceScore: 1 | 2 | 3 | 4 | 5;
   mentorComment: string;
+  travelExpenseAmount: number;
+  travelExpenseDescription: string;
   createdAt: Date;
 }
 
@@ -49,6 +51,8 @@ const DailyLogSchema = new Schema<IDailyLog>(
     question: { type: String, default: "" },
     confidenceScore: { type: Number, min: 1, max: 5, default: 3 },
     mentorComment: { type: String, default: "" },
+    travelExpenseAmount: { type: Number, default: 0 },
+    travelExpenseDescription: { type: String, default: "" },
   },
   { timestamps: true }
 );

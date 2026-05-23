@@ -20,6 +20,7 @@ export async function PATCH(
 
   if (body.phase) update.phase = body.phase;
   if (body.active !== undefined) update.active = body.active;
+  if (body.canDownloadExpenses !== undefined) update.canDownloadExpenses = body.canDownloadExpenses;
   if (body.password) {
     update.passwordHash = await bcrypt.hash(body.password, 12);
   }

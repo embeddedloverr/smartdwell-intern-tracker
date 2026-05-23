@@ -36,6 +36,8 @@ export async function POST(req: NextRequest) {
         gaps: body.gaps || "",
         question: body.question || "",
         confidenceScore: body.confidenceScore || 3,
+        travelExpenseAmount: Number(body.travelExpenseAmount) || 0,
+        travelExpenseDescription: body.travelExpenseDescription || "",
       },
     },
     { upsert: true, new: true }

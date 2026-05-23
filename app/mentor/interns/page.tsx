@@ -15,6 +15,7 @@ interface Intern {
   joinDate: string;
   avatarInitials: string;
   active: boolean;
+  canDownloadExpenses: boolean;
 }
 
 export default function ManageInternsPage() {
@@ -24,6 +25,7 @@ export default function ManageInternsPage() {
   const [editingIntern, setEditingIntern] = useState<Intern | null>(null);
   const [editPhase, setEditPhase] = useState(1);
   const [editPassword, setEditPassword] = useState("");
+  const [editCanDownloadExpenses, setEditCanDownloadExpenses] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const loadInterns = async () => {
@@ -63,7 +65,10 @@ export default function ManageInternsPage() {
 
   const handleEditSave = async () => {
     if (!editingIntern) return;
-    const body: Record<string, unknown> = { phase: editPhase };
+    const body: Record<string, unknown> = { 
+      phase: editPhase,
+      canDownloadExpenses: editCanDownloadExpenses
+    };
     if (editPassword) body.password = editPassword;
 
     await fetch(`/api/mentor/interns/${editingIntern._id}`, {
@@ -149,6 +154,7 @@ export default function ManageInternsPage() {
                           onClick={() => {
                             setEditingIntern(intern);
                             setEditPhase(intern.phase);
+                            setEditCanDownloadExpenses(intern.canDownloadExpenses || false);
                             setEditPassword("");
                           }}
                           className="p-1 hover:bg-gray-100 rounded text-gray-500"
@@ -202,6 +208,18 @@ export default function ManageInternsPage() {
                 </option>
               ))}
             </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="canDownloadExpenses"
+              checked={editCanDownloadExpenses}
+              onChange={(e) => setEditCanDownloadExpenses(e.target.checked)}
+              className="rounded border-gray-300 text-sdw-teal focus:ring-sdw-teal/50"
+            />
+            <label htmlFor="canDownloadExpenses" className="text-sm font-medium text-gray-700">
+              Allow Expense Report Download
+            </label>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

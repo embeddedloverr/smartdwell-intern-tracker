@@ -10,6 +10,7 @@ export interface IUser extends Document {
   joinDate: Date;
   avatarInitials: string;
   active: boolean;
+  canDownloadExpenses: boolean;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -21,6 +22,7 @@ const UserSchema = new Schema<IUser>({
   joinDate: { type: Date, default: Date.now },
   avatarInitials: { type: String },
   active: { type: Boolean, default: true },
+  canDownloadExpenses: { type: Boolean, default: false },
 });
 
 export default mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

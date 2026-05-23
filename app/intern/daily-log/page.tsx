@@ -24,6 +24,8 @@ interface DailyLogData {
   gaps: string;
   question: string;
   confidenceScore: number;
+  travelExpenseAmount: number;
+  travelExpenseDescription: string;
   mentorComment?: string;
 }
 

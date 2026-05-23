@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   Loader2,
   MessageSquare,
+  Download,
 } from "lucide-react";
 import { formatIST, getGreeting } from "@/lib/utils";
 
@@ -36,16 +37,20 @@ export default function InternOverview() {
   const { data: session } = useSession();
   const [tasks, setTasks] = useState<TaskData[]>([]);
   const [records, setRecords] = useState<RecordData[]>([]);
+  const [canDownloadExpenses, setCanDownloadExpenses] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
-      const [tasksRes, recordsRes] = await Promise.all([
+      const [tasksRes, recordsRes, profileRes] = await Promise.all([
         fetch("/api/intern/tasks"),
         fetch("/api/intern/task-records"),
+        fetch("/api/intern/profile"),
       ]);
       setTasks(await tasksRes.json());
       setRecords(await recordsRes.json());
+      const profile = await profileRes.json();
+      setCanDownloadExpenses(profile.canDownloadExpenses || false);
       setLoading(false);
     }
     load();
@@ -91,13 +96,24 @@ export default function InternOverview() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Greeting */}
-      <div className="bg-white rounded-lg p-6 shadow-sm border">
-        <h2 className="text-xl font-semibold text-sdw-navy">
-          {getGreeting()}, {session?.user?.name}!
-        </h2>
-        <p className="text-sm text-gray-500 mt-1">
-          {formatIST(new Date(), "EEEE, dd MMMM yyyy")} &middot; Phase {phase}
-        </p>
+      <div className="bg-white rounded-lg p-6 shadow-sm border flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h2 className="text-xl font-semibold text-sdw-navy">
+            {getGreeting()}, {session?.user?.name}!
+          </h2>
+          <p className="text-sm text-gray-500 mt-1">
+            {formatIST(new Date(), "EEEE, dd MMMM yyyy")} &middot; Phase {phase}
+          </p>
+        </div>
+        {canDownloadExpenses && (
+          <a
+            href="/api/intern/expenses-report"
+            className="flex items-center gap-2 bg-sdw-teal text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-sdw-teal/90"
+          >
+            <Download size={18} />
+            Download Expenses Report
+          </a>
+        )}
       </div>
 
       {/* Progress + Stats */}

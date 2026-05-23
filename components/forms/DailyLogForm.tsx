@@ -21,8 +21,6 @@ interface DailyLogData {
   gaps: string;
   question: string;
   confidenceScore: number;
-  travelExpenseAmount: number;
-  travelExpenseDescription: string;
 }
 
 interface DailyLogFormProps {
@@ -58,8 +56,6 @@ export default function DailyLogForm({
     gaps: initialData?.gaps || "",
     question: initialData?.question || "",
     confidenceScore: initialData?.confidenceScore || 3,
-    travelExpenseAmount: initialData?.travelExpenseAmount || 0,
-    travelExpenseDescription: initialData?.travelExpenseDescription || "",
   });
   const [saving, setSaving] = useState(false);
 
@@ -204,37 +200,6 @@ export default function DailyLogForm({
                 </button>
               ))}
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Section E — Travel Expenses */}
-      <div className="bg-white rounded-lg border p-5">
-        <h3 className="font-semibold text-sdw-navy mb-4 flex items-center gap-2">
-          <span className="bg-sdw-teal text-white text-xs px-2 py-0.5 rounded">E</span>
-          Travel Expenses
-        </h3>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Amount (₹)</label>
-            <input 
-              type="number" 
-              min="0"
-              value={form.travelExpenseAmount} 
-              onChange={(e) => set("travelExpenseAmount", Number(e.target.value) || 0)} 
-              className={inputClass} 
-              readOnly={readOnly} 
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Description</label>
-            <input 
-              value={form.travelExpenseDescription} 
-              onChange={(e) => set("travelExpenseDescription", e.target.value)} 
-              className={inputClass} 
-              readOnly={readOnly} 
-              placeholder="e.g. Bus fare to office"
-            />
           </div>
         </div>
       </div>

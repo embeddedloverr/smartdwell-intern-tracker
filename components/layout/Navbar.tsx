@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { LogOut, Users, LayoutDashboard } from "lucide-react";
+import { LogOut, Users, LayoutDashboard, Camera } from "lucide-react";
 
 const navItems = [
   { href: "/mentor", label: "Dashboard", icon: LayoutDashboard },
   { href: "/mentor/interns", label: "Manage Interns", icon: Users },
+  { href: "/mentor/attendance", label: "Attendance", icon: Camera },
 ];
 
 export default function Navbar() {

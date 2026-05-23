@@ -13,12 +13,14 @@ import {
   Menu,
   X,
   Receipt,
+  Camera,
 } from "lucide-react";
 
 const baseNavItems = [
   { href: "/intern", label: "Overview", icon: LayoutDashboard },
   { href: "/intern/tasks", label: "My Tasks", icon: ListTodo },
   { href: "/intern/daily-log", label: "Daily Log", icon: BookOpen },
+  { href: "/intern/attendance", label: "Attendance", icon: Camera },
   { href: "/intern/progress", label: "My Progress", icon: TrendingUp },
 ];
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import StatsCard from "@/components/ui/StatsCard";
-import { Users, CheckCircle, BookOpen, AlertTriangle, Loader2, Eye } from "lucide-react";
+import { Users, CheckCircle, BookOpen, AlertTriangle, Loader2, Eye, Camera } from "lucide-react";
 import { formatIST } from "@/lib/utils";
 
 interface InternSummary {
@@ -32,12 +32,22 @@ export default function MentorDashboard() {
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
   const [seedMsg, setSeedMsg] = useState("");
+  const [attendanceSummary, setAttendanceSummary] = useState<{ presentCount: number; absentCount: number; lateCount: number; totalInterns: number } | null>(null);
 
   useEffect(() => {
     fetch("/api/mentor/summary")
       .then((r) => r.json())
       .then(setData)
       .finally(() => setLoading(false));
+
+    fetch("/api/mentor/attendance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "summary" }),
+    })
+      .then((r) => r.json())
+      .then(setAttendanceSummary)
+      .catch(() => null);
   }, []);
 
   const handleSeed = async () => {
@@ -102,6 +112,37 @@ export default function MentorDashboard() {
           color="text-red-600"
         />
       </div>
+
+      {/* Attendance today summary */}
+      {attendanceSummary && (
+        <Link href="/mentor/attendance" className="block">
+          <div className="bg-white rounded-lg border shadow-sm p-5 flex items-center justify-between hover:border-sdw-teal/50 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-sdw-teal/10 flex items-center justify-center">
+                <Camera size={20} className="text-sdw-teal" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-sdw-navy">Today&apos;s Attendance</p>
+                <p className="text-xs text-gray-400">Click to view selfies &amp; locations →</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 text-center">
+              <div>
+                <p className="text-xl font-bold text-sdw-teal">{attendanceSummary.presentCount}</p>
+                <p className="text-xs text-gray-400">Present</p>
+              </div>
+              <div>
+                <p className="text-xl font-bold text-orange-500">{attendanceSummary.lateCount}</p>
+                <p className="text-xs text-gray-400">Late</p>
+              </div>
+              <div>
+                <p className="text-xl font-bold text-red-500">{attendanceSummary.absentCount}</p>
+                <p className="text-xs text-gray-400">Absent</p>
+              </div>
+            </div>
+          </div>
+        </Link>
+      )}
 
       {/* Intern Table */}
       <div className="bg-white rounded-lg shadow-sm border overflow-hidden">

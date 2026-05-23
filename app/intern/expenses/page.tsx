@@ -16,6 +16,7 @@ import {
   Loader2,
   TrendingUp,
   FileText,
+  Lock,
 } from "lucide-react";
 import { format } from "date-fns";
 import Toast from "@/components/ui/Toast";
@@ -55,6 +56,7 @@ export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [canDownload, setCanDownload] = useState(false);
+  const [expensesEnabled, setExpensesEnabled] = useState<boolean | null>(null);
 
   // filter
   const [filterMonth, setFilterMonth] = useState(now.getMonth() + 1);
@@ -90,7 +92,10 @@ export default function ExpensesPage() {
   useEffect(() => {
     fetch("/api/intern/profile")
       .then((r) => r.json())
-      .then((p) => setCanDownload(p.canDownloadExpenses || false));
+      .then((p) => {
+        setCanDownload(p.canDownloadExpenses || false);
+        setExpensesEnabled(p.expensesEnabled || false);
+      });
   }, []);
 
   const resetForm = () => {
@@ -174,6 +179,35 @@ export default function ExpensesPage() {
     "July","August","September","October","November","December",
   ];
   const years = Array.from({ length: 5 }, (_, i) => now.getFullYear() - i);
+
+  // Still checking profile
+  if (expensesEnabled === null) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="animate-spin text-sdw-teal" size={32} />
+      </div>
+    );
+  }
+
+  // Feature disabled by admin
+  if (!expensesEnabled) {
+    return (
+      <div className="max-w-5xl mx-auto">
+        <div className="bg-white rounded-xl border shadow-sm p-12 flex flex-col items-center justify-center gap-4 text-center">
+          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+            <Lock size={28} className="text-gray-400" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-sdw-navy mb-1">Expenses Feature Disabled</h2>
+            <p className="text-sm text-gray-400 max-w-sm">
+              The expenses feature has not been enabled for your account yet.
+              Please contact your mentor or admin to get access.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">

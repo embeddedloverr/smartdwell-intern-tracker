@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
@@ -15,25 +15,45 @@ import {
   Receipt,
 } from "lucide-react";
 
-const navItems = [
+const baseNavItems = [
   { href: "/intern", label: "Overview", icon: LayoutDashboard },
   { href: "/intern/tasks", label: "My Tasks", icon: ListTodo },
   { href: "/intern/daily-log", label: "Daily Log", icon: BookOpen },
-  { href: "/intern/expenses", label: "Expenses", icon: Receipt },
   { href: "/intern/progress", label: "My Progress", icon: TrendingUp },
 ];
 
 export default function Sidebar() {
   const [open, setOpen] = useState(false);
+  const [expensesEnabled, setExpensesEnabled] = useState(false);
   const pathname = usePathname();
   const { data: session } = useSession();
 
-  const initials = session?.user?.name
-    ?.split(" ")
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2) || "IN";
+  useEffect(() => {
+    if (session?.user?.role === "intern") {
+      fetch("/api/intern/profile")
+        .then((r) => r.json())
+        .then((p) => setExpensesEnabled(p.expensesEnabled || false))
+        .catch(() => setExpensesEnabled(false));
+    }
+  }, [session]);
+
+  const navItems = expensesEnabled
+    ? [
+        baseNavItems[0],
+        baseNavItems[1],
+        baseNavItems[2],
+        { href: "/intern/expenses", label: "Expenses", icon: Receipt },
+        baseNavItems[3],
+      ]
+    : baseNavItems;
+
+  const initials =
+    session?.user?.name
+      ?.split(" ")
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "IN";
 
   return (
     <>

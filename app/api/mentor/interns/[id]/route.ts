@@ -21,6 +21,9 @@ export async function PATCH(
   if (body.phase) update.phase = body.phase;
   if (body.active !== undefined) update.active = body.active;
   if (body.canDownloadExpenses !== undefined) update.canDownloadExpenses = body.canDownloadExpenses;
+  if (body.expensesEnabled !== undefined) update.expensesEnabled = body.expensesEnabled;
+  // If expenses feature is disabled, also disable download to keep things consistent
+  if (body.expensesEnabled === false) update.canDownloadExpenses = false;
   if (body.password) {
     update.passwordHash = await bcrypt.hash(body.password, 12);
   }

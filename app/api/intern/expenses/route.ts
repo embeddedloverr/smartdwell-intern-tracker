@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/mongodb";
 import Expense from "@/models/Expense";
+import User from "@/models/User";
 
 // GET — list all expenses for the logged-in intern
 export async function GET(req: NextRequest) {
@@ -12,6 +13,11 @@ export async function GET(req: NextRequest) {
   }
 
   await dbConnect();
+
+  const user = await User.findById(session.user.id);
+  if (!user || !user.expensesEnabled) {
+    return NextResponse.json({ error: "Expenses feature is not enabled for your account." }, { status: 403 });
+  }
 
   const { searchParams } = new URL(req.url);
   const month = searchParams.get("month");
@@ -38,6 +44,12 @@ export async function POST(req: NextRequest) {
   }
 
   await dbConnect();
+
+  const user = await User.findById(session.user.id);
+  if (!user || !user.expensesEnabled) {
+    return NextResponse.json({ error: "Expenses feature is not enabled for your account." }, { status: 403 });
+  }
+
   const body = await req.json();
 
   if (!body.date || !body.description || body.amount === undefined) {

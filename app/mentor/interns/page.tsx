@@ -16,6 +16,7 @@ interface Intern {
   avatarInitials: string;
   active: boolean;
   canDownloadExpenses: boolean;
+  expensesEnabled: boolean;
 }
 
 export default function ManageInternsPage() {
@@ -26,6 +27,7 @@ export default function ManageInternsPage() {
   const [editPhase, setEditPhase] = useState(1);
   const [editPassword, setEditPassword] = useState("");
   const [editCanDownloadExpenses, setEditCanDownloadExpenses] = useState(false);
+  const [editExpensesEnabled, setEditExpensesEnabled] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const loadInterns = async () => {
@@ -67,7 +69,8 @@ export default function ManageInternsPage() {
     if (!editingIntern) return;
     const body: Record<string, unknown> = { 
       phase: editPhase,
-      canDownloadExpenses: editCanDownloadExpenses
+      canDownloadExpenses: editExpensesEnabled ? editCanDownloadExpenses : false,
+      expensesEnabled: editExpensesEnabled,
     };
     if (editPassword) body.password = editPassword;
 
@@ -155,6 +158,7 @@ export default function ManageInternsPage() {
                             setEditingIntern(intern);
                             setEditPhase(intern.phase);
                             setEditCanDownloadExpenses(intern.canDownloadExpenses || false);
+                            setEditExpensesEnabled(intern.expensesEnabled || false);
                             setEditPassword("");
                           }}
                           className="p-1 hover:bg-gray-100 rounded text-gray-500"
@@ -209,18 +213,54 @@ export default function ManageInternsPage() {
               ))}
             </select>
           </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="canDownloadExpenses"
-              checked={editCanDownloadExpenses}
-              onChange={(e) => setEditCanDownloadExpenses(e.target.checked)}
-              className="rounded border-gray-300 text-sdw-teal focus:ring-sdw-teal/50"
-            />
-            <label htmlFor="canDownloadExpenses" className="text-sm font-medium text-gray-700">
-              Allow Expense Report Download
+
+          {/* Expense permissions section */}
+          <div className="border rounded-lg p-4 space-y-3 bg-gray-50">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Expense Permissions</p>
+
+            {/* Enable/disable entire feature */}
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <div className="relative mt-0.5">
+                <input
+                  type="checkbox"
+                  id="expensesEnabled"
+                  checked={editExpensesEnabled}
+                  onChange={(e) => {
+                    setEditExpensesEnabled(e.target.checked);
+                    if (!e.target.checked) setEditCanDownloadExpenses(false);
+                  }}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-gray-200 peer-checked:bg-sdw-teal rounded-full transition-colors" />
+                <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">Enable Expenses Feature</p>
+                <p className="text-xs text-gray-400">Shows the Expenses page, sidebar link, and dashboard card for this intern.</p>
+              </div>
+            </label>
+
+            {/* Allow CSV download — only makes sense if feature is enabled */}
+            <label className={`flex items-start gap-3 cursor-pointer ${!editExpensesEnabled ? "opacity-40 pointer-events-none" : ""}`}>
+              <div className="relative mt-0.5">
+                <input
+                  type="checkbox"
+                  id="canDownloadExpenses"
+                  checked={editCanDownloadExpenses}
+                  onChange={(e) => setEditCanDownloadExpenses(e.target.checked)}
+                  disabled={!editExpensesEnabled}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-gray-200 peer-checked:bg-sdw-teal rounded-full transition-colors" />
+                <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">Allow Report Download</p>
+                <p className="text-xs text-gray-400">Intern can download their expenses as a CSV report.</p>
+              </div>
             </label>
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               New Password (leave blank to keep current)

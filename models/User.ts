@@ -11,6 +11,7 @@ export interface IUser extends Document {
   avatarInitials: string;
   active: boolean;
   canDownloadExpenses: boolean;
+  expensesEnabled: boolean;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -23,6 +24,7 @@ const UserSchema = new Schema<IUser>({
   avatarInitials: { type: String },
   active: { type: Boolean, default: true },
   canDownloadExpenses: { type: Boolean, default: false },
+  expensesEnabled: { type: Boolean, default: false },
 });
 
 export default mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

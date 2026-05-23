@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/mongodb";
 import Expense from "@/models/Expense";
+import User from "@/models/User";
 
 // PATCH — update a specific expense
 export async function PATCH(
@@ -15,6 +16,12 @@ export async function PATCH(
   }
 
   await dbConnect();
+
+  const user = await User.findById(session.user.id);
+  if (!user || !user.expensesEnabled) {
+    return NextResponse.json({ error: "Expenses feature is not enabled." }, { status: 403 });
+  }
+
   const body = await req.json();
 
   const expense = await Expense.findOne({
@@ -51,6 +58,11 @@ export async function DELETE(
   }
 
   await dbConnect();
+
+  const user = await User.findById(session.user.id);
+  if (!user || !user.expensesEnabled) {
+    return NextResponse.json({ error: "Expenses feature is not enabled." }, { status: 403 });
+  }
 
   const expense = await Expense.findOneAndDelete({
     _id: params.id,

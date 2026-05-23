@@ -40,6 +40,7 @@ export default function InternOverview() {
   const [tasks, setTasks] = useState<TaskData[]>([]);
   const [records, setRecords] = useState<RecordData[]>([]);
   const [canDownloadExpenses, setCanDownloadExpenses] = useState(false);
+  const [expensesEnabled, setExpensesEnabled] = useState(false);
   const [monthlyExpenseTotal, setMonthlyExpenseTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -58,6 +59,7 @@ export default function InternOverview() {
       setRecords(await recordsRes.json());
       const profile = await profileRes.json();
       setCanDownloadExpenses(profile.canDownloadExpenses || false);
+      setExpensesEnabled(profile.expensesEnabled || false);
       const expenses = await expensesRes.json();
       if (Array.isArray(expenses)) {
         setMonthlyExpenseTotal(expenses.reduce((s: number, e: { amount: number }) => s + e.amount, 0));
@@ -141,35 +143,37 @@ export default function InternOverview() {
         </div>
       </div>
 
-      {/* Expenses summary card */}
-      <Link href="/intern/expenses" className="block">
-        <div className="bg-white rounded-lg border shadow-sm p-5 flex items-center justify-between hover:border-sdw-teal/50 transition-colors group">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-sdw-teal/10 flex items-center justify-center">
-              <Receipt size={20} className="text-sdw-teal" />
+      {/* Expenses summary card — only if admin has enabled the feature */}
+      {expensesEnabled && (
+        <Link href="/intern/expenses" className="block">
+          <div className="bg-white rounded-lg border shadow-sm p-5 flex items-center justify-between hover:border-sdw-teal/50 transition-colors group">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-sdw-teal/10 flex items-center justify-center">
+                <Receipt size={20} className="text-sdw-teal" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-sdw-navy">This Month&apos;s Expenses</p>
+                <p className="text-xs text-gray-400">Manage and track your expenses →</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-semibold text-sdw-navy">This Month&apos;s Expenses</p>
-              <p className="text-xs text-gray-400">Manage and track your expenses →</p>
+            <div className="text-right">
+              <p className="text-xl font-bold text-sdw-teal flex items-center gap-0.5">
+                <IndianRupee size={16} />
+                {monthlyExpenseTotal.toLocaleString("en-IN")}
+              </p>
+              {canDownloadExpenses && (
+                <a
+                  href={`/api/intern/expenses-report?month=${new Date().getMonth() + 1}&year=${new Date().getFullYear()}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-xs text-sdw-teal hover:underline"
+                >
+                  Download CSV
+                </a>
+              )}
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-xl font-bold text-sdw-teal flex items-center gap-0.5">
-              <IndianRupee size={16} />
-              {monthlyExpenseTotal.toLocaleString("en-IN")}
-            </p>
-            {canDownloadExpenses && (
-              <a
-                href={`/api/intern/expenses-report?month=${new Date().getMonth() + 1}&year=${new Date().getFullYear()}`}
-                onClick={(e) => e.stopPropagation()}
-                className="text-xs text-sdw-teal hover:underline"
-              >
-                Download CSV
-              </a>
-            )}
-          </div>
-        </div>
-      </Link>
+        </Link>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Current Week */}

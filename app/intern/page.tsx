@@ -14,6 +14,7 @@ import {
   MessageSquare,
   Receipt,
   IndianRupee,
+  Download,
 } from "lucide-react";
 import Link from "next/link";
 import { formatIST, getGreeting } from "@/lib/utils";
@@ -118,15 +119,6 @@ export default function InternOverview() {
             {formatIST(new Date(), "EEEE, dd MMMM yyyy")} &middot; Phase {phase}
           </p>
         </div>
-        {canDownloadExpenses && (
-          <a
-            href="/api/intern/expenses-report"
-            className="flex items-center gap-2 bg-sdw-teal text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-sdw-teal/90"
-          >
-            <Download size={18} />
-            Download Expenses Report
-          </a>
-        )}
       </div>
 
       {/* Progress + Stats */}
